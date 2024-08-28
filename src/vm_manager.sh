@@ -25,7 +25,7 @@ create_vm() {
         -cdrom "$2" \
         -hda "$DISK_IMAGE" \
         -boot d \
-        -net nic \
+        -net nic -net user,hostfwd=tcp::2222-:22 \
         -net user \
         -nographic \
         -name "$1"
@@ -53,7 +53,7 @@ start_vm() {
 remove_vm() {
     echo "Removing VM..."
     
-    DISK_IMAGE="$DISK_DIR/$VM_NAME.qcow2"
+    DISK_IMAGE="$DISK_DIR/$1.qcow2"
     # Remove the virtual disk
     if [ -f "$DISK_IMAGE" ]; then
         echo "Removing disk image $DISK_IMAGE..."

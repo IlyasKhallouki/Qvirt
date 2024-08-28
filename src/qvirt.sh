@@ -3,9 +3,10 @@
 create_flag=false
 # Default values for testing
 memory_value=512
+disk_value=5
 img_value="./test/distributions/alpine_linux.iso"
 
-while getopts ":c:r:l:m:i:" opt; do
+while getopts ":c:r:l:m:d:i:" opt; do
     case "${opt}" in
         c)
             # If -c is flagged, we expect the next argument to be the VM name
@@ -28,6 +29,20 @@ while getopts ":c:r:l:m:i:" opt; do
                 memory_value=$memory
             else
                 echo "error: -m option used without -c option" >&2
+                exit 1
+            fi
+            ;;
+        d)
+            if [ "$create_flag" = true ]; then
+                disk="$OPTARG"
+                re='^[0-9]+$'
+                if ! [[ $disk =~ $re ]]; then
+                    echo "error: Invalid disk size value. It's not a number!" >&2
+                    exit 1
+                fi
+                disk_value=$disk
+            else
+                echo "error: -d option used without -c option" >&2
                 exit 1
             fi
             ;;
@@ -57,9 +72,3 @@ while getopts ":c:r:l:m:i:" opt; do
             ;;
     esac
 done
-
-# Debug output to check if options are correctly parsed
-echo "Create flag: $create_flag"
-echo "VM Name: $create_name"
-echo "Memory: $memory_value MB"
-echo "Image: $img_value"

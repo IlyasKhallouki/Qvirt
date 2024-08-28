@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "src/vm_manager.sh"
+
 create_flag=false
 # Default values for testing
 memory_value=512
@@ -72,3 +74,7 @@ while getopts ":c:r:l:m:d:i:" opt; do
             ;;
     esac
 done
+
+if $create_flag; then
+    create_vm $create_name $img_value $memory_value $disk_value
+fi

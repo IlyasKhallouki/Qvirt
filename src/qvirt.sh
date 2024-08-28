@@ -1,42 +1,48 @@
 #!/bin/bash
 
 create_flag=false
+# Default values for testing
 memory_value=512
 img_value="./test/distributions/alpine_linux.iso"
 
 while getopts ":c:r:l:m:i:" opt; do
     case "${opt}" in
         c)
-            name="${OPTARG}"
-            if [ -z "$name" ]; then
-                echo "error: Invalid VM name. It's empty!" >&2
-                exit 1
-            else
+            # If -c is flagged, we expect the next argument to be the VM name
+            if [ -n "${OPTARG}" ] && [[ "${OPTARG}" != -* ]]; then
                 create_flag=true
-                create_name=$name
+                create_name="${OPTARG}"
+            else
+                create_flag=false
+                OPTIND=$((OPTIND - 1))  # Otherwise reprocess this option
             fi
             ;;
         m)
-            memory="$OPTARG"
-            re='^[0-9]+$'
-            if [ -z "$memory" ] && $create_flag; then
-                echo "error: Invalid VM memory value. It's empty!" >&2
-                exit 1
-            elif ! [[ $memory =~ $re ]] && $create_flag ; then
-                echo "error: Invalid memory value. It's not a number!" >&2
+            if [ "$create_flag" = true ]; then
+                memory="$OPTARG"
+                re='^[0-9]+$'
+                if ! [[ $memory =~ $re ]]; then
+                    echo "error: Invalid memory value. It's not a number!" >&2
+                    exit 1
+                fi
+                memory_value=$memory
+            else
+                echo "error: -m option used without -c option" >&2
                 exit 1
             fi
-            memory_value=$memory
             ;;
         i)
-            img="${OPTARG}"
-            if [ -z "$img" ] && $create_flag; then
-                echo "error: Invalid VM img directory. It's empty!" >&2
-                exit 1
-            elif [ ! -f "$img" ] && $create_flag; then
-                echo "error: Invalid VM img file. It doesn't exist!"
+            if [ "$create_flag" = true ]; then
+                img="${OPTARG}"
+                if [ ! -f "$img" ]; then
+                    echo "error: Invalid VM img file. It doesn't exist!" >&2
+                    exit 1
+                else
+                    img_value="$img"
+                fi
             else
-                img_value="$img"
+                echo "error: -i option used without -c option" >&2
+                exit 1
             fi
             ;;
         r)
@@ -51,9 +57,9 @@ while getopts ":c:r:l:m:i:" opt; do
             ;;
     esac
 done
-        
 
-echo $create_flag
-echo $create_name
-echo $memory_value
-echo $img_value
+# Debug output to check if options are correctly parsed
+echo "Create flag: $create_flag"
+echo "VM Name: $create_name"
+echo "Memory: $memory_value MB"
+echo "Image: $img_value"

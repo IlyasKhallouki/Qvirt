@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 test/distributions/*
 test/disk_images/*
 log.txt
+=======
+/target
+>>>>>>> master

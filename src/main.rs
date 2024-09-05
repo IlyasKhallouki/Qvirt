@@ -5,4 +5,6 @@ use clap::Parser;
 
 fn main(){
     let args = QvirtArgs::parse();
+
+    println!("{:?}", args)
 }
